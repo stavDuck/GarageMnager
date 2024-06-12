@@ -17,6 +17,14 @@ namespace Ex03.ConsoleUI
         private const string k_OptionSixMessageInMenu = "Charge an electric vehicle.";
         private const string k_OptionSevenMessageInMenu = "Show full detailes of a vehicle.";
         private const string k_OptionEightMessageInMenu = "Exit.";
+        private const string k_OptionOne = "1";
+        private const string k_OptionTwo = "2";
+        private const string k_OptionThree = "3";
+        private const string k_OptionFour = "4";
+        private const string k_OptionFive = "5";
+        private const string k_OptionSix = "6";
+        private const string k_OptionSeven = "7";
+        private const string k_OptionEight = "8";
         private readonly GarageManager r_Garage = new GarageManager();
    
         public void StartGarageApp()
@@ -30,7 +38,7 @@ namespace Ex03.ConsoleUI
                 string userChoose = Console.ReadLine();
                 try
                 {
-                    //isUserExited = executeUserChiose(userChoose);
+                    isUserExited = userChioseAction(userChoose);
                 }
                 catch (FormatException formatException)
                 {
@@ -61,6 +69,60 @@ namespace Ex03.ConsoleUI
                 k_OptionOneMessageInMenu, k_OptionTwoMessageInMenu, k_OptionThreeMessageInMenu,
                 k_OptionFourMessageInMenu, k_OptionFiveMessageInMenu, k_OptionSixMessageInMenu,
                 k_OptionSevenMessageInMenu, k_OptionEightMessageInMenu));
+        }
+
+        private bool userChioseAction(string i_UserChoose)
+        {
+            bool wantToExit = false;
+
+            switch (i_UserChoose)
+            {
+                case k_OptionOne:
+                    insertNewVehicleToGarage();
+                    break;
+
+                case k_OptionTwo:
+                    listLicenseNumbersWithFilterOption();
+                    break;
+
+                case k_OptionThree:
+                    changeVehicleState();
+                    break;
+
+                case k_OptionFour:
+                    fillWheelsToMax();
+                    break;
+
+                case k_OptionFive:
+                    fuelVehicle();
+                    break;
+
+                case k_OptionSix:
+                    chargeVehicle();
+                    break;
+
+                case k_OptionSeven:
+                    showVehicleDetails();
+                    break;
+
+                case k_OptionEight:
+                    wantToExit = true;
+                    break;
+
+                default:
+                    if (!int.TryParse(i_UserChoose, out int intChoise))
+                    {
+                        throw new FormatException("Only digits allowed!");
+                    }
+                    else if (intChoise < 1 || intChoise > 8)
+                    {
+                        throw new ValueOutOfRangeException(1, 8);
+                    }
+
+                    break;
+            }
+
+            return wantToExit;
         }
 
 
