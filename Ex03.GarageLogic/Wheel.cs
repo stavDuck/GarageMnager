@@ -34,14 +34,13 @@ namespace Ex03.GarageLogic
             m_CurrentAirPressure = i_CurrentAirPressure;
         }
 
-        public void PumpWheelToMax()
+        public void FillWheelToMax()
         {
             m_CurrentAirPressure = r_MaxAirPressure;
         }
 
         public override string ToString()
         {
-            
             return string.Format("Manufacturer: {0}\nMax air pressure: {1}\nCurrent air pressure: {2}",
                 r_ManufacturerName, r_MaxAirPressure, m_CurrentAirPressure);
         }
