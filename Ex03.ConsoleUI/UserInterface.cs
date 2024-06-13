@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Remoting.Messaging;
 using Ex03.GarageLogic;
 
 namespace Ex03.ConsoleUI
@@ -17,6 +18,14 @@ namespace Ex03.ConsoleUI
         private const string k_OptionSixMessageInMenu = "Charge an electric vehicle.";
         private const string k_OptionSevenMessageInMenu = "Show full detailes of a vehicle.";
         private const string k_OptionEightMessageInMenu = "Exit.";
+        private const string k_OptionOne = "1";
+        private const string k_OptionTwo = "2";
+        private const string k_OptionThree = "3";
+        private const string k_OptionFour = "4";
+        private const string k_OptionFive = "5";
+        private const string k_OptionSix = "6";
+        private const string k_OptionSeven = "7";
+        private const string k_OptionEight = "8";
         private readonly GarageManager r_Garage = new GarageManager();
    
         public void StartGarageApp()
@@ -30,7 +39,7 @@ namespace Ex03.ConsoleUI
                 string userChoose = Console.ReadLine();
                 try
                 {
-                    //isUserExited = executeUserChiose(userChoose);
+                    isUserExited = userChioseAction(userChoose);
                 }
                 catch (FormatException formatException)
                 {
@@ -62,6 +71,164 @@ namespace Ex03.ConsoleUI
                 k_OptionFourMessageInMenu, k_OptionFiveMessageInMenu, k_OptionSixMessageInMenu,
                 k_OptionSevenMessageInMenu, k_OptionEightMessageInMenu));
         }
+
+        private bool userChioseAction(string i_UserChoose)
+        {
+            bool wantToExit = false;
+
+            switch (i_UserChoose)
+            {
+                case k_OptionOne:
+                    //insertNewVehicleToGarage();
+                    break;
+
+                case k_OptionTwo:
+                    //listLicenseNumbersWithFilterOption();
+                    break;
+
+                case k_OptionThree:
+                    changeVehicleState();
+                    break;
+
+                case k_OptionFour:
+                    fillWheelsToMax();
+                    break;
+
+                case k_OptionFive:
+                    fuelVehicle();
+                    break;
+
+                case k_OptionSix:
+                    chargeVehicle();
+                    break;
+
+                case k_OptionSeven:
+                    showVehicleDetails();
+                    break;
+
+                case k_OptionEight:
+                    wantToExit = true;
+                    break;
+
+                default:
+                    if (!int.TryParse(i_UserChoose, out int intChoise))
+                    {
+                        throw new FormatException("Only digits are allowed!");
+                    }
+                    else if (intChoise < 1 || intChoise > 8)
+                    {
+                        throw new ValueOutOfRangeException(1, 8);
+                    }
+
+                    break;
+            }
+
+            return wantToExit;
+        }
+
+        private string getStringFromUser(string i_Message)
+        {
+            Console.WriteLine(i_Message);
+            string resultString = Console.ReadLine();
+
+            if (resultString.Equals(""))
+            {
+                throw new ArgumentException("Error ! input can't be an empty string!");
+            }
+
+            return resultString;
+        }
+        private void printEnumTypesOptionMenu<T>()
+        {
+            int i = 1;
+            foreach (string tType in Enum.GetNames(typeof(T)))
+            {
+                Console.WriteLine(string.Format("{0}. {1}", i, tType));
+                i++;
+            }
+        }
+
+        private void changeVehicleState()
+        {
+            string userLicenseNumber = getValidLicenseNumberFromUser();
+            eVehicleState requiredState = getValidVehicleStateFromUser();
+            r_Garage.SetVehicleState(userLicenseNumber, requiredState);
+            Console.WriteLine(string.Format("Vehicle with license number {0} new state: {1}", userLicenseNumber, requiredState));
+        }
+
+        public string getValidLicenseNumberFromUser()
+        {
+            bool isInputValid = false;
+            bool isLicenseNumberExist = false;
+            string input = null;
+
+            while(!isInputValid && !isLicenseNumberExist)
+            {
+                try
+                {
+                    input = getStringFromUser(k_LicenseNumberMessage);
+                    isInputValid = true;
+                    isLicenseNumberExist = r_Garage.CheckIfVehicleExist(input);
+                    if(!isLicenseNumberExist)
+                    {
+                        Console.WriteLine("The Vehicle is not in the garage, please try another number.");
+                    }
+                }
+                catch (ArgumentException argException)
+                {
+                    Console.WriteLine(argException.Message);
+                }
+            }
+
+            return input;
+        }
+
+        public eVehicleState getValidVehicleStateFromUser()
+        {
+            eVehicleState? vehicleStateInput = null;
+            bool isValidState = false;
+
+            while (!isValidState)
+            {
+                try
+                {
+                    vehicleStateInput = getVehicleStateFromUser();
+                    isValidState = true;
+                }
+                catch (FormatException formatExeption)
+                {
+                    Console.WriteLine(formatExeption.Message);
+                }
+                catch (ValueOutOfRangeException rangeExeption)
+                {
+                    Console.WriteLine(rangeExeption.Message);
+                }
+            }
+
+            return (eVehicleState)vehicleStateInput;
+        }
+
+        private eVehicleState getVehicleStateFromUser()
+        {
+            Console.WriteLine("Please choose a new vehicle state from folowed list:");
+            printEnumTypesOptionMenu<eVehicleState>();
+
+            if (int.TryParse(Console.ReadLine(), out int userChoise))
+            {
+                if (userChoise < 1 || userChoise > Enum.GetNames(typeof(eVehicleState)).Length)
+                {
+                    throw new ValueOutOfRangeException(1, Enum.GetNames(typeof(eVehicleState)).Length);
+                }
+            }
+            else
+            {
+                throw new FormatException("Invalid input format");
+            }
+
+            return (eVehicleState)(userChoise - 1);
+        }
+
+
 
 
 
