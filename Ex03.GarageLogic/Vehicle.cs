@@ -77,6 +77,11 @@ namespace Ex03.GarageLogic
             SetChildExtraProperties(i_ChildExtraProperties);
         }
 
+        public void AddEnergy(float i_energyAmount, eFuelType? i_FuelTypeToAdd = null)
+        {
+            m_EnergyContainer.AddEnergy(i_energyAmount, i_FuelTypeToAdd);
+        }
+
         public override int GetHashCode()
         {
             return r_LicenseNumber.GetHashCode();
@@ -94,6 +99,5 @@ namespace Ex03.GarageLogic
 
             return resultString;
         }
-
     }
 }
