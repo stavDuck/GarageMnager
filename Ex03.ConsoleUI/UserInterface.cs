@@ -151,13 +151,13 @@ namespace Ex03.ConsoleUI
         
         private void changeVehicleState()
         {
-            string userLicenseNumber = getValidLicenseNumberFromUser();
+            string userLicenseNumber = getValidLicenseNumberFromUser(k_LicenseNumberMessage);
             eVehicleState requiredState = getValidVehicleStateFromUser();
             r_Garage.SetVehicleState(userLicenseNumber, requiredState);
             Console.WriteLine(string.Format("Vehicle with license number {0} new state: {1}", userLicenseNumber, requiredState));
         }
 
-        public string getValidLicenseNumberFromUser()
+        public string getValidLicenseNumberFromUser(string i_Message)
         {
             bool isInputValid = false;
             bool isLicenseNumberExist = false;
@@ -167,7 +167,7 @@ namespace Ex03.ConsoleUI
             {
                 try
                 {
-                    input = getStringFromUser(k_LicenseNumberMessage);
+                    input = getStringFromUser(i_Message);
                     isInputValid = true;
                     isLicenseNumberExist = r_Garage.CheckIfVehicleExist(input);
                     if (!isLicenseNumberExist)
@@ -229,6 +229,12 @@ namespace Ex03.ConsoleUI
             return (eVehicleState)(userChoise - 1);
         }
 
+        private void fillWheelsToMax()
+        {
+            string userLicenseNumber = getValidLicenseNumberFromUser(k_LicenseNumberMessage);
+
+        }
+      
         private void insertNewVehicleToGarage()
         {
             string userLicenseNumber = getInputFromTheUserAndCheckThatItsValid(k_LicenseNumberMessage);
