@@ -27,7 +27,7 @@ namespace Ex03.ConsoleUI
         private const string k_OptionSeven = "7";
         private const string k_OptionEight = "8";
         private readonly GarageManager r_Garage = new GarageManager();
-   
+
         public void StartGarageApp()
         {
             bool isUserExited = false;
@@ -79,7 +79,7 @@ namespace Ex03.ConsoleUI
             switch (i_UserChoose)
             {
                 case k_OptionOne:
-                    //insertNewVehicleToGarage();
+                    insertNewVehicleToGarage();
                     break;
 
                 case k_OptionTwo:
@@ -91,19 +91,19 @@ namespace Ex03.ConsoleUI
                     break;
 
                 case k_OptionFour:
-                    fillWheelsToMax();
+                    //fillWheelsToMax();
                     break;
 
                 case k_OptionFive:
-                    fuelVehicle();
+                    //fuelVehicle();
                     break;
 
                 case k_OptionSix:
-                    chargeVehicle();
+                    //chargeVehicle();
                     break;
 
                 case k_OptionSeven:
-                    showVehicleDetails();
+                    //showVehicleDetails();
                     break;
 
                 case k_OptionEight:
@@ -138,6 +138,7 @@ namespace Ex03.ConsoleUI
 
             return resultString;
         }
+       
         private void printEnumTypesOptionMenu<T>()
         {
             int i = 1;
@@ -147,7 +148,7 @@ namespace Ex03.ConsoleUI
                 i++;
             }
         }
-
+        
         private void changeVehicleState()
         {
             string userLicenseNumber = getValidLicenseNumberFromUser(k_LicenseNumberMessage);
@@ -162,14 +163,14 @@ namespace Ex03.ConsoleUI
             bool isLicenseNumberExist = false;
             string input = null;
 
-            while(!isInputValid && !isLicenseNumberExist)
+            while (!isInputValid && !isLicenseNumberExist)
             {
                 try
                 {
                     input = getStringFromUser(i_Message);
                     isInputValid = true;
                     isLicenseNumberExist = r_Garage.CheckIfVehicleExist(input);
-                    if(!isLicenseNumberExist)
+                    if (!isLicenseNumberExist)
                     {
                         Console.WriteLine("The Vehicle is not in the garage, please try another number.");
                     }
@@ -233,8 +234,63 @@ namespace Ex03.ConsoleUI
             string userLicenseNumber = getValidLicenseNumberFromUser(k_LicenseNumberMessage);
 
         }
+      
+        private void insertNewVehicleToGarage()
+        {
+            string userLicenseNumber = getInputFromTheUserAndCheckThatItsValid(k_LicenseNumberMessage);
 
+            if (r_Garage.CheckIfVehicleExist(userLicenseNumber))
+            {
+                Console.WriteLine("It seems that the vehicle already exists in the garage. We're setting its state to: in repair.");
+                //need to check its setting it to in repair status
+            }
+            else
+            {
+                insertNewVehicleToGarage(userLicenseNumber);
+                Console.WriteLine(string.Format("Vehicle {0} has been added to the garage!", userLicenseNumber));
+            }
 
+            r_Garage.SetVehicleState(userLicenseNumber, eVehicleState.InRepair);
+        }
 
+        private string getInputFromTheUserAndCheckThatItsValid(string i_MessageToUser)
+        {
+            return "";
+        }
+
+        private void insertNewVehicleToGarage(string i_VehicleLicenseNumber)
+        {
+            eVehicleType vehicleType = getVehicleTypeFromUserAndCheckItsValida();
+            string modelName = getInputFromTheUserAndCheckThatItsValid(k_ModelNameMessage);
+            string WheelsManufacturerName = getInputFromTheUserAndCheckThatItsValid(k_WheelManufacturerNameMessage);
+            Vehicle newVehicle = VehicleFactory.CreateNewVehicle(vehicleType, i_VehicleLicenseNumber, modelName, WheelsManufacturerName);
+            bool isValidMembers = false;
+
+            while (!isValidMembers)
+            {
+                List<string> extraMembers = getExtraMembersFromUser(newVehicle.InheritentExtraMembers);
+                try
+                {
+                    float CurrentEnergyInput = getCurrentEnergyFromUser(newVehicle.EnergyType);
+                    float CurrentWheelsPresureInput = getCurrentWheelsPresureFromUser();
+                    newVehicle.CompleteBuild(extraMembers, CurrentWheelsPresureInput, CurrentEnergyInput);
+                    isValidMembers = true;
+                }
+                catch (ValueOutOfRangeException rangeExeption)
+                {
+                    Console.WriteLine(rangeExeption.Message);
+                }
+                catch (FormatException formatExeption)
+                {
+                    Console.WriteLine(formatExeption.Message);
+                }
+            }
+        }
+
+        private eVehicleType getVehicleTypeFromUserAndCheckItsValida()
+        {
+            eVehicleType vehicleTypeChoice = eVehicleType.Car; //NEED TO CHANGE!!!!!!!!
+            return vehicleTypeChoice;
+        }
     }
 }
