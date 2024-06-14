@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
 using Ex03.GarageLogic;
 
@@ -27,7 +28,7 @@ namespace Ex03.ConsoleUI
         private const string k_OptionSeven = "7";
         private const string k_OptionEight = "8";
         private readonly GarageManager r_Garage = new GarageManager();
-   
+
         public void StartGarageApp()
         {
             bool isUserExited = false;
@@ -79,11 +80,11 @@ namespace Ex03.ConsoleUI
             switch (i_UserChoose)
             {
                 case k_OptionOne:
-                    //insertNewVehicleToGarage();
+                    insertVehicleToGarage();
                     break;
 
                 case k_OptionTwo:
-                    //listLicenseNumbersWithFilterOption();
+                    listLicenseNumbersWithFilterOption();
                     break;
 
                 case k_OptionThree:
@@ -91,15 +92,15 @@ namespace Ex03.ConsoleUI
                     break;
 
                 case k_OptionFour:
-                    fillWheelsToMax();
+                    //fillWheelsToMax();
                     break;
 
                 case k_OptionFive:
-                    fuelVehicle();
+                    //fuelVehicle();
                     break;
 
                 case k_OptionSix:
-                    chargeVehicle();
+                    //chargeVehicle();
                     break;
 
                 case k_OptionSeven:
@@ -138,6 +139,7 @@ namespace Ex03.ConsoleUI
 
             return resultString;
         }
+       
         private void printEnumTypesOptionMenu<T>()
         {
             int i = 1;
@@ -147,7 +149,7 @@ namespace Ex03.ConsoleUI
                 i++;
             }
         }
-
+        
         private void changeVehicleState()
         {
             string userLicenseNumber = getValidLicenseNumberFromUser(k_LicenseNumberMessage);
@@ -162,14 +164,14 @@ namespace Ex03.ConsoleUI
             bool isLicenseNumberExist = false;
             string input = null;
 
-            while(!isInputValid && !isLicenseNumberExist)
+            while (!isInputValid && !isLicenseNumberExist)
             {
                 try
                 {
                     input = getStringFromUser(i_Message);
                     isInputValid = true;
                     isLicenseNumberExist = r_Garage.CheckIfVehicleExist(input);
-                    if(!isLicenseNumberExist)
+                    if (!isLicenseNumberExist)
                     {
                         Console.WriteLine("The Vehicle is not in the garage, please try another number.");
                     }
@@ -254,7 +256,137 @@ namespace Ex03.ConsoleUI
             r_Garage.GetTicket(userLicenseNumber).Vehicle.AddEnergy(amount, fuelType);
             Console.WriteLine(string.Format("Added {0} liters of {1} to vheicle: {2}", amount, Enum.GetName(typeof(eFuelType), fuelType), userLicenseNumber));
         }
+      
+        private void insertVehicleToGarage()
+        {
+            string userLicenseNumber = getStringFromUser(k_LicenseNumberMessage);
 
+            if (r_Garage.CheckIfVehicleExist(userLicenseNumber))
+            {
+                Console.WriteLine("It seems that the vehicle already exists in the garage. We're setting its state to: in repair.");
+            }
+            else
+            {
+                Console.WriteLine("It seems that the vehicle isn't exists in the garage. " +
+                    "Lets get all the details and enter your vehicle to the garage");
+                insertNewVehicleToGarage(userLicenseNumber);
+                Console.WriteLine(string.Format("Vehicle {0} has been added to the garage!", userLicenseNumber));
+            }
+
+            r_Garage.SetVehicleState(userLicenseNumber, eVehicleState.InRepair);
+        }
+
+        private void insertNewVehicleToGarage(string i_VehicleLicenseNumber)
+        {
+            eVehicleType vehicleType = getVehicleTypeFromUserAndCheckItsValida();
+            string modelName = getStringFromUser(k_ModelNameMessage);
+            string WheelsManufacturerName = getStringFromUser(k_WheelManufacturerNameMessage);
+            Vehicle newVehicle = VehicleFactory.CreateNewVehicle(vehicleType, i_VehicleLicenseNumber, modelName, WheelsManufacturerName);
+            bool isValidMembers = false;
+            float currentEnergy, currentWheelsPresure;
+
+            while (!isValidMembers)
+            {
+                List<string> extraMembers = getExtraMembers(newVehicle.ChildExtraProperties);
+                try
+                {
+                    currentEnergy = getCurrentEnergyInTheVehicleFromUser(newVehicle.EnergyContainerType);
+                    currentWheelsPresure = getCurrentWheelsPresureInTheVehicleFromUser();
+                    newVehicle.CompleteVehicleConfiguration(extraMembers, currentWheelsPresure, currentEnergy);
+                    isValidMembers = true;
+                }
+                catch (ValueOutOfRangeException rangeExeption)
+                {
+                    Console.WriteLine(rangeExeption.Message);
+                }
+                catch (FormatException formatExeption)
+                {
+                    Console.WriteLine(formatExeption.Message);
+                }
+            }
+        }
+
+        private List<string> getExtraMembers(List<string> i_ChildExtraProperties)
+        {
+            List<string> userInputList = new List<string>();
+
+            foreach (string member in i_ChildExtraProperties)
+            {
+                Console.WriteLine(string.Format("Please enter {0}:", member));
+                userInputList.Add(Console.ReadLine());
+            }
+
+            return userInputList;
+        }
+
+        private float getCurrentEnergyInTheVehicleFromUser(eEnergyContainerType i_EnergyContainerType)
+        {
+            string currentEnergyAmountFromUserString;
+            float currentEnergyAmountFromUser;
+            
+            Console.WriteLine($"Please insert the current {Enum.GetName(typeof(eEnergyContainerType), i_EnergyContainerType)} amount:");
+            currentEnergyAmountFromUserString = Console.ReadLine();
+            if (!float.TryParse(currentEnergyAmountFromUserString, out currentEnergyAmountFromUser))
+            {
+                throw new FormatException("Invalid input format");
+            }
+
+            return currentEnergyAmountFromUser;
+        }
+
+        private float getCurrentWheelsPresureInTheVehicleFromUser()
+        {
+            string currentAirPressureInputString;
+            float currentWheelsPresureInput;
+
+            Console.WriteLine("Please enter the current air pressure of the wheels:");
+            currentAirPressureInputString = Console.ReadLine();
+            if (!float.TryParse(currentAirPressureInputString, out currentWheelsPresureInput))
+            {
+                throw new FormatException("Invalid input format");
+            }
+
+            return currentWheelsPresureInput;
+        }
+
+        private eVehicleType getVehicleTypeFromUserAndCheckItsValida()
+        {
+            eVehicleType vehicleTypeChoice = eVehicleType.Car;
+            bool isValidType = false;
+
+            while (!isValidType)
+            {
+                try
+                {
+                    vehicleTypeChoice = getVehicleTypeFromUser();
+                    isValidType = true;
+                }
+                catch (FormatException formatExeption)
+                {
+                    Console.WriteLine(formatExeption.Message);
+                }
+                catch (ValueOutOfRangeException rangeExeption)
+                {
+                    Console.WriteLine(rangeExeption.Message);
+                }
+            }
+
+            return vehicleTypeChoice;
+        }
+
+        private eVehicleType getVehicleTypeFromUser()
+        {
+            string vehicleTypeInputString;
+            int vehicleTypeInput;
+
+            Console.WriteLine("Please choose vehicle type number from folowed list:");
+            printEnumTypesOptionMenu<eVehicleType>();
+            vehicleTypeInputString = Console.ReadLine();
+            if (int.TryParse(vehicleTypeInputString, out vehicleTypeInput))
+            {
+                if (vehicleTypeInput < 1 || vehicleTypeInput > Enum.GetNames(typeof(eVehicleType)).Length)
+                {
+                    throw new ValueOutOfRangeException(1, Enum.GetNames(typeof(eVehicleType)).Length);
         private eFuelType getValidFuelTypeFromUser()
         {
             eFuelType? fuelTypeInput = null;
@@ -294,6 +426,45 @@ namespace Ex03.ConsoleUI
             else
             {
                 throw new FormatException("Invalid input format");
+            }
+
+            return (eVehicleType)vehicleTypeInput;
+        }
+
+        private void listLicenseNumbersWithFilterOption()
+        {
+            List<string> licenseNumbersInGarge = new List<string>();
+            string userInput;
+            eVehicleState vehicleStateToFilterLicenseNumberBy;
+
+            Console.WriteLine("Do you want to filter the list by vechicle state? (Y/N)");
+            userInput = Console.ReadLine();
+            while (userInput != "Y" && userInput != "N")
+            {
+                Console.WriteLine("Invalid input, make sure the input is 'Y' or 'N', any other option isn't valid");
+                userInput = Console.ReadLine();
+            }
+
+            if (userInput == "Y")
+            {
+                vehicleStateToFilterLicenseNumberBy = getVehicleStateFromUser();
+                licenseNumbersInGarge = r_Garage.GetLicenseNumbersWithFilteredByState(vehicleStateToFilterLicenseNumberBy);
+                Console.WriteLine($"List of the license numbers of vehicles in the garage with state {vehicleStateToFilterLicenseNumberBy}:");
+            }
+            else if (userInput == "N")
+            {
+                licenseNumbersInGarge = r_Garage.GetAllLicenseNumbers();
+                Console.WriteLine("List of the License numbers of all the vehicles in the garage:");
+            }
+
+            if (licenseNumbersInGarge.Count == 0)
+            {
+                Console.WriteLine("The list is empty");
+            }
+
+            foreach (string licenseNumber in licenseNumbersInGarge)
+            {
+                Console.WriteLine($"{licenseNumber}");
             }
 
             return (eFuelType)userChoise;
