@@ -387,6 +387,16 @@ namespace Ex03.ConsoleUI
                 if (vehicleTypeInput < 1 || vehicleTypeInput > Enum.GetNames(typeof(eVehicleType)).Length)
                 {
                     throw new ValueOutOfRangeException(1, Enum.GetNames(typeof(eVehicleType)).Length);
+                }
+            }
+            else
+            {
+                throw new FormatException("Invalid input format");
+            }
+
+            return (eVehicleType)vehicleTypeInput;
+        }
+
         private eFuelType getValidFuelTypeFromUser()
         {
             eFuelType? fuelTypeInput = null;
@@ -428,7 +438,7 @@ namespace Ex03.ConsoleUI
                 throw new FormatException("Invalid input format");
             }
 
-            return (eVehicleType)vehicleTypeInput;
+            return (eFuelType)userChoise;
         }
 
         private void listLicenseNumbersWithFilterOption()
@@ -466,8 +476,6 @@ namespace Ex03.ConsoleUI
             {
                 Console.WriteLine($"{licenseNumber}");
             }
-
-            return (eFuelType)userChoise;
         }
 
         private void chargeVehicle()
