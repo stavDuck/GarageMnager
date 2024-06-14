@@ -17,7 +17,7 @@ namespace Ex03.ConsoleUI
         private const string k_OptionFourMessageInMenu = "Fill the vehcle's wheels with air to maximum.";
         private const string k_OptionFiveMessageInMenu = "Fule a vehicle.";
         private const string k_OptionSixMessageInMenu = "Charge an electric vehicle.";
-        private const string k_OptionSevenMessageInMenu = "Show full detailes of a vehicle.";
+        private const string k_OptionSevenMessageInMenu = "Show full detailes of a vehicle by license number.";
         private const string k_OptionEightMessageInMenu = "Exit.";
         private const string k_OptionOne = "1";
         private const string k_OptionTwo = "2";
@@ -104,7 +104,7 @@ namespace Ex03.ConsoleUI
                     break;
 
                 case k_OptionSeven:
-                    //showVehicleDetails();
+                    printVehicleTicketDetails();
                     break;
 
                 case k_OptionEight:
@@ -212,9 +212,8 @@ namespace Ex03.ConsoleUI
 
         private eVehicleState getVehicleStateFromUser()
         {
-            Console.WriteLine("Please choose a new vehicle state from folowed list:");
+            Console.WriteLine("Please choose a new vehicle state from the list:");
             printEnumTypesOptionMenu<eVehicleState>();
-
             if (int.TryParse(Console.ReadLine(), out int userChoise))
             {
                 if (userChoise < 1 || userChoise > Enum.GetNames(typeof(eVehicleState)).Length)
@@ -233,7 +232,29 @@ namespace Ex03.ConsoleUI
         private void fillWheelsToMax()
         {
             string userLicenseNumber = getValidLicenseNumberFromUser(k_LicenseNumberMessage);
+            try
+            {
+                r_Garage.FillVehicleWheelsToMax(userLicenseNumber);
+                Console.WriteLine(string.Format("Pumped wheels to max for Vehicle with license number: {0}", userLicenseNumber));
+            }
+            catch (ArgumentException argException)
+            {
+                Console.WriteLine(argException.Message);
+            }
+        }
 
+        private void fuelVehicle()
+        {
+            string userLicenseNumber = getValidLicenseNumberFromUser(k_LicenseNumberMessage);
+            eFuelType fuelType = getValidFuelTypeFromUser();
+            Console.WriteLine("Please insert fuel amount:");
+            if (!float.TryParse(Console.ReadLine(), out float amount))
+            {
+                throw new FormatException("Invalid Format Input!");
+            }
+
+            r_Garage.GetTicket(userLicenseNumber).Vehicle.AddEnergy(amount, fuelType);
+            Console.WriteLine(string.Format("Added {0} liters of {1} to vheicle: {2}", amount, Enum.GetName(typeof(eFuelType), fuelType), userLicenseNumber));
         }
       
         private void insertVehicleToGarage()
@@ -366,6 +387,40 @@ namespace Ex03.ConsoleUI
                 if (vehicleTypeInput < 1 || vehicleTypeInput > Enum.GetNames(typeof(eVehicleType)).Length)
                 {
                     throw new ValueOutOfRangeException(1, Enum.GetNames(typeof(eVehicleType)).Length);
+        private eFuelType getValidFuelTypeFromUser()
+        {
+            eFuelType? fuelTypeInput = null;
+            bool isValidType = false;
+
+            while (!isValidType)
+            {
+                try
+                {
+                    fuelTypeInput = getFuelTypeFromUser();
+                    isValidType = true;
+                }
+                catch (FormatException formatExeption)
+                {
+                    Console.WriteLine(formatExeption.Message);
+                }
+                catch (ValueOutOfRangeException rangeExeption)
+                {
+                    Console.WriteLine(rangeExeption.Message);
+                }
+            }
+
+            return (eFuelType)(fuelTypeInput - 1);
+        }
+
+        private eFuelType getFuelTypeFromUser()
+        {
+            Console.WriteLine("Please choose fuel type number from the list:");
+            printEnumTypesOptionMenu<eFuelType>();
+            if (int.TryParse(Console.ReadLine(), out int userChoise))
+            {
+                if (userChoise < 1 || userChoise > Enum.GetNames(typeof(eFuelType)).Length)
+                {
+                    throw new ValueOutOfRangeException(1, Enum.GetNames(typeof(eFuelType)).Length);
                 }
             }
             else
@@ -411,6 +466,30 @@ namespace Ex03.ConsoleUI
             {
                 Console.WriteLine($"{licenseNumber}");
             }
+
+            return (eFuelType)userChoise;
+        }
+
+        private void chargeVehicle()
+        {
+            string userLicenseNumber = getValidLicenseNumberFromUser(k_LicenseNumberMessage);
+
+            Console.WriteLine("Please insert duration in minutes to charge:");
+            if (!float.TryParse(Console.ReadLine(), out float amount))
+            {
+                throw new FormatException("Invalid Format Input!");
+            }
+
+            amount = amount / 60;
+            r_Garage.GetTicket(userLicenseNumber).Vehicle.AddEnergy(amount);
+            Console.WriteLine(string.Format("Vehicle {0} was charged with {1} hours", userLicenseNumber, amount));
+        }
+
+        private void printVehicleTicketDetails()
+        {
+            string userLicenseNumber = getValidLicenseNumberFromUser(k_LicenseNumberMessage);
+            GarageTicket ticket = r_Garage.GetTicket(userLicenseNumber);
+            Console.WriteLine(ticket.ToString());
         }
     }
 }

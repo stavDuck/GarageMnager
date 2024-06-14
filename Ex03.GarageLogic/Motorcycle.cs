@@ -39,7 +39,7 @@ namespace Ex03.GarageLogic
         private void setListOfMotorcycleExtraProperties()
         {
             r_ChildExtraProperties.Add("motorcycle License Type (" + string.Join(", ", Enum.GetNames(typeof(eMotorcycleLicenseType))) + ")");
-            r_ChildExtraProperties.Add("engine volume");
+            r_ChildExtraProperties.Add("engine Capacity");
         }
 
         public override void SetChildExtraProperties(List<string> i_ChildExtraProperties)
