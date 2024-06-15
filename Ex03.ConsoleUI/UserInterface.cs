@@ -282,18 +282,18 @@ namespace Ex03.ConsoleUI
             string modelName = getStringFromUser(k_ModelNameMessage);
             string WheelsManufacturerName = getStringFromUser(k_WheelManufacturerNameMessage);
             Vehicle newVehicle = VehicleFactory.CreateNewVehicle(vehicleType, i_VehicleLicenseNumber, modelName, WheelsManufacturerName);
-            bool isValidMembers = false;
+            bool isValidProperty = false;
             float currentEnergy, currentWheelsPresure;
 
-            while (!isValidMembers)
+            while (!isValidProperty)
             {
-                List<string> extraMembers = getExtraMembers(newVehicle.ChildExtraProperties);
+                List<string> extraMembers = getExtraPropertiesFromUser(newVehicle.ChildExtraProperties);
                 try
                 {
                     currentEnergy = getCurrentEnergyInTheVehicleFromUser(newVehicle.EnergyContainerType);
                     currentWheelsPresure = getCurrentWheelsPresureInTheVehicleFromUser();
                     newVehicle.CompleteVehicleConfiguration(extraMembers, currentWheelsPresure, currentEnergy);
-                    isValidMembers = true;
+                    isValidProperty = true;
                 }
                 catch (ValueOutOfRangeException rangeExeption)
                 {
@@ -306,13 +306,14 @@ namespace Ex03.ConsoleUI
             }
         }
 
-        private List<string> getExtraMembers(List<string> i_ChildExtraProperties)
+        private List<string> getExtraPropertiesFromUser(List<string> i_ChildExtraProperties)
         {
             List<string> userInputList = new List<string>();
 
-            foreach (string member in i_ChildExtraProperties)
+            foreach (string property in i_ChildExtraProperties)
             {
-                Console.WriteLine(string.Format("Please enter {0}:", member));
+                Console.WriteLine(string.Format("Please enter {0}:", property));
+                Console.WriteLine(string.Format("Note that its case sensitive"));
                 userInputList.Add(Console.ReadLine());
             }
 
