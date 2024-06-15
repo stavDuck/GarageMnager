@@ -1,2 +1,23 @@
 .vs/
 *.cache
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vscode/
+.vs/
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.publishsettings
+*.*proj.user
+*.cache
+*.log
+
+# Visual Studio 2022
+.vs2022/
